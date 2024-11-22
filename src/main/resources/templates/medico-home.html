@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Médico - Clínica Angry</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            font-family: Arial, sans-serif;
+        }
+
+        .sidebar {
+            height: 100vh;
+            background-color: #f8f9fa;
+            color: #000;
+            padding-top: 20px;
+            padding-left: 15px;
+            padding-right: 15px;
+            width: 250px;
+            position: fixed;
+        }
+
+        .sidebar h4 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .sidebar img {
+            height: 80px;
+            width: 80px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .sidebar a {
+            padding: 10px 15px;
+            display: block;
+            color: #333;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            margin-bottom: 10px;
+            text-decoration: none;
+        }
+
+        .sidebar a:hover {
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+        }
+
+        .dashboard-header {
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+        }
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 3px;
+        }
+
+        .card {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Barra de navegación lateral -->
+    <div class="sidebar p-3">
+        <div class="img-logo"><img src="./img/logo.png" alt=""></div>
+
+        <h4>Dr. Smith</h4>
+        <a href="#">Dashboard</a>
+        <a href="#">Gestionar Disponibilidad</a>
+        <a href="#">Citas Pendientes</a>
+        <a href="#">Citas Realizadas</a>
+        <a href="#">Cerrar sesión</a>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+        <!-- Encabezado del Dashboard -->
+        <div class="dashboard-header text-center">
+            <h1>Bienvenido, Dr. Smith</h1>
+            <p>Su dashboard de médico</p>
+        </div>
+
+        <!-- Contenedor del Dashboard -->
+        <div class="container my-5">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Citas Programadas</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">10 Citas para hoy</p>
+                            <a href="#" class="btn btn-primary">Ver Citas Pendientes</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Citas Realizadas</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">5 Citas realizadas</p>
+                            <a href="#" class="btn btn-primary">Ver Citas Realizadas</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Disponibilidad</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">2 dias disponible</p>
+                            <a href="#" class="btn btn-primary">Ver Disponibilidad</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Citas Detalladas</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Fecha</th>
+                                        <th>Hora</th>
+                                        <th>Paciente</th>
+                                        <th>Medico</th>
+                                        <th>Pago</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="cita: ${citas}">
+                                        <td th:text="${cita.idCita}">25/10/2024</td>
+                                        <td th:text="${#temporals.format(cita.fecha, 'dd-MM-yyyy')}">10:00 AM</td>
+                                        <td th:text="${#temporals.format(cita.hora, 'HH:mm')}">Juan Pérez</td>
+                                        <td th:text="${cita.nombrePaciente}">Cardiología</td>
+                                        <td th:text="${cita.nombreMedico}">Confirmada</td>
+                                        <td th:text="${cita.pago}"></td>
+                                        <td th:text="${cita.estado}"></td>
+                                    </tr>
+                                    <!-- Más citas pueden ser añadidas aquí -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

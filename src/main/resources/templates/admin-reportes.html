@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes - Admin Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Date Range Picker CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+    <style>
+        body {
+            display: flex;
+        }
+
+        .sidebar {
+            height: 100vh;
+            background-color: #f8f9fa;
+            color: #333;
+            padding: 20px;
+            width: 250px;
+        }
+
+        .sidebar h4 {
+            color: #343a40;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .sidebar a {
+            padding: 10px;
+            display: block;
+            color: #343a40;
+            margin-bottom: 10px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar a:hover {
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+        }
+
+        .sidebar i {
+            margin-right: 10px;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .card {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Barra de navegación lateral -->
+<div class="sidebar">
+    <div class="text-center"><img src="/img/logo.png" alt="" width="85px" height="80px"></div>
+    <h4>Administrador</h4>
+    <a href="#"><i class="fas fa-chart-line"></i> Dashboard</a>
+    <a href="/empleado/listar"><i class="fas fa-users"></i> Empleados</a>
+    <a href="/medico/listar"><i class="fas fa-users"></i> Medicos</a>
+    <a href="/admin/reportes"><i class="fas fa-file-alt"></i> Reportes</a>
+    <a href="/usuario/cerrar"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+</div>
+
+<!-- Contenido principal -->
+<div class="main-content">
+    <div class="dashboard-header">
+        <h1>Reportes</h1>
+        <p>Visualiza y exporta los reportes del sistema</p>
+    </div>
+
+    <!-- Filtro de fecha y botón para exportar a PDF -->
+    <div class="mb-3 d-flex align-items-center">
+        <label for="dateRange" class="form-label me-3 fw-bold">Filtrar por rango de fechas:</label>
+        <input type="text" id="dateRange" class="form-control w-50 me-3" placeholder="Seleccionar rango de fechas">
+        <button class="btn btn-danger" onclick="exportToPDF()"><i class="fas fa-file-pdf"></i> Exportar a PDF</button>
+    </div>
+
+    <!-- Tabla de reportes -->
+    <div class="card">
+        <div class="card-header">
+            <h5>Reporte de Actividades</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped" id="miTabla">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Medico</th>
+                        <th>Paciente</th>
+                        <th>Pago</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Datos de ejemplo -->
+                    <tr>
+                        <td>24/10/2024</td>
+                        <td>Registro de nuevo paciente</td>
+                        <td>Dr. Smith</td>
+                        <td>Paciente: Juan Pérez</td>
+                    </tr>
+                    <tr>
+                        <td>23/10/2024</td>
+                        <td>Generación de reporte</td>
+                        <td>Admin</td>
+                        <td>Reporte mensual de pacientes</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS, jQuery, Moment.js, Date Range Picker -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+<script>
+    let citas = []; // Variable global para almacenar todas las citas
+
+// Inicializar el selector de rango de fechas
+$(function() {
+    $('#dateRange').daterangepicker({
+        opens: 'left',
+        locale: {
+            format: 'DD/MM/YYYY',
+            separator: ' - ',
+            applyLabel: 'Aplicar',
+            cancelLabel: 'Cancelar',
+            fromLabel: 'Desde',
+            toLabel: 'Hasta',
+            customRangeLabel: 'Personalizado',
+            weekLabel: 'S',
+            daysOfWeek: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+            monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+        }
+    }, function(start, end) {
+        filterReports(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
+    });
+
+    // Obtener todas las citas al cargar la página
+    fetchCitas();
+});
+
+// Función para obtener todas las citas
+function fetchCitas() {
+    fetch('/api/v1/cita/listar')
+        .then(response => response.json())
+        .then(data => {
+            citas = data; // Guardar todas las citas en la variable global
+            mostrarCitas(citas); // Mostrar todas las citas inicialmente
+        })
+        .catch(error => console.error("Error al obtener citas:", error));
+}
+
+// Función para filtrar los reportes por rango de fechas
+function filterReports(startDate, endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    // Filtrar citas en el frontend
+    const citasFiltradas = citas.filter(cita => {
+        const fechaCita = new Date(cita.fecha);
+        return fechaCita >= start && fechaCita <= end;
+    });
+
+    mostrarCitas(citasFiltradas);
+}
+
+// Función para mostrar citas en la tabla
+function mostrarCitas(citas) {
+    const tabla = document.querySelector("#miTabla tbody");
+    tabla.innerHTML = ""; // Limpiar las filas actuales de la tabla
+
+    citas.forEach(cita => {
+        const fecha = new Date(cita.fecha + 'T00:00:00').toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+        const hora = new Date(`1970-01-01T${cita.hora}`).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+        const fila = document.createElement("tr");
+        fila.innerHTML = `
+            <td>${cita.idCita}</td>
+            <td>${fecha}</td>
+            <td>${hora}</td>
+            <td>${cita.nombreMedico}</td>
+            <td>${cita.nombrePaciente}</td>
+            <td>${cita.pago}</td>
+            <td>${cita.estado}</td>
+        `;
+        tabla.appendChild(fila);
+    });
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${title}">Sitio web de gestión hospitalaria</title>
+
+    <script src="https://kit.fontawesome.com/c1df782baf.js"></script>
+    <link rel="stylesheet"
+        href="https://cdn-uicons.flaticon.com/2.1.0/uicons-thin-rounded/css/uicons-thin-rounded.css" />
+    <link rel="stylesheet"
+        href="https://cdn-uicons.flaticon.com/2.1.0/uicons-regular-rounded/css/uicons-regular-rounded.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <style>
+        .cita-medica {
+            text-align: center;
+        }
+
+        .month-carousel,
+        .week-carousel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .month-carousel button,
+        .week-carousel button {
+            padding: 10px;
+            margin: 0 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #days-container {
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+            padding: 10px;
+            padding-left: 1090px;
+            gap: 10px;
+        }
+
+        #hours-container {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .hour {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .hour:hover {
+            background: #0056b3;
+        }
+
+        .day {
+            background: #e0e0e0;
+            /* Gris por defecto */
+            padding: 10px;
+            border-radius: 50%;
+            min-width: 60px;
+            text-align: center;
+            cursor: not-allowed;
+            user-select: none;
+            color: #a0a0a0;
+        }
+
+        .day.enabled {
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+
+        .day.enabled:hover {
+            background: #0056b3;
+        }
+
+        .day.disabled {
+            background: #e0e0e0;
+            color: #a0a0a0;
+        }
+
+        .day.today {
+            background: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo"><img th:src="@{/img/logo.png}" alt="" /></div>
+
+        <nav class="navbar">
+            <a th:href="@{/home}">Inicio</a>
+            <a th:href="@{/nosotros}">Acerca de</a>
+            <a th:href="@{/doctor}">Médicos</a>
+            <a th:href="@{/servicios}">Servicios</a>
+        </nav>
+
+
+
+        <!-- Sección del Usuario -->
+        <ul sec:authorize="isAuthenticated()" class="navbar-nav ms-auto">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                    <img src="https://via.placeholder.com/30" class="rounded-circle" alt="Usuario"> <span
+                        sec:authentication="principal.username"></span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                    <li><a class="dropdown-item" href="#">Perfil</a></li>
+                    <li sec:authorize="!hasRole('ROLE_PACIENTE')">
+                        <a class="dropdown-item" sec:authorize="hasRole('ROLE_ADMIN')"
+                            th:href="@{/admin/dashboard}">Dashboard</a>
+                        <a class="dropdown-item" sec:authorize="hasRole('ROLE_MEDICO')"
+                            th:href="@{/medico/dashboard}">Dashboard</a>
+                        <a class="dropdown-item" sec:authorize="hasRole('ROLE_RECEPCIONISTA')"
+                            th:href="@{/recepcionista/dashboard}">Dashboard</a>
+                    </li>
+                    <li><a class="dropdown-item" href="/usuario/cerrar">Cerrar sesión</a></li>
+                </ul>
+            </li>
+        </ul>
+
+        <ul sec:authorize="isAnonymous()" class="navbar-nav ms-auto">
+            <li class="nav-item dropdown">
+                <a class="btn btn-primary" href="/usuario/iniciar-sesion" id="bton"> iniciar sesion</a>
+            </li>
+        </ul>
+        </div>
+        </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="cita-medica">
+            <div class="container">
+                <!-- Paso 1: Escoger especialidad y médico -->
+                <div id="paso1" class="paso">
+                    <h2 class="text-center mb-4">Paso 1: Escoge la especialidad y al médico</h2>
+                    <form>
+                        <div class="mb-4">
+                            <label for="especialidad" class="form-label">Especialidad</label>
+                            <select id="especialidad" class="form-select" onchange="mostrarMedicos(this)">
+                                <option value="" selected disabled>Selecciona una especialidad</option>
+                                <option th:each="especialidad : ${especialidades}" th:value="${especialidad.idEspecialidad}" th:text="${especialidad.nombreEspecialidad}"></option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label for="medico" class="form-label">Médico</label>
+                            <select id="medico" class="form-select">
+                                <option value="" selected disabled>Selecciona un médico</option>
+                            </select>
+                        </div>
+                        <button id="escogerMedico" type="button" class="btn btn-primary" onclick="cargarHorasMedico(); mostrarPaso(2);">Siguiente</button>
+                    </form>
+                </div>
+                <div id="paso2" class="paso d-none">
+
+                    <h1>Paso 2: Escoge el Horario</h1>
+                    <div class="step2">
+                        <div class="month-carousel">
+                            <button id="prev-month">←</button>
+                            <span id="current-month">Enero</span>
+                            <button id="next-month">→</button>
+                        </div>
+
+                        <div class="week-carousel">
+                            <button id="prev-week">←</button>
+                            <div id="days-container">
+                                <!-- Días se generarán dinámicamente aquí -->
+                            </div>
+                            <button id="next-week">→</button>
+                        </div>
+                        <div id="hours-container">
+
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary" onclick="mostrarPaso(1)">Anterior</button>
+                    <form action="/paypal/payment/create" method="post">
+                        <button type="submit" class="btn btn-primary" onclick="">Pagar Servicio</button>
+                    </form>
+                    
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center text-lg-start bg-dark text-light pt-5">
+        <section class="d-flex justify-content-center justify-content-lg-between p-4 border-bottom border-secondary">
+            <div class="me-5 d-none d-lg-block">
+                <span>Conéctate con nosotros en nuestras redes sociales:</span>
+            </div>
+            <div>
+                <a href="#" class="me-4 text-reset text-light">
+                    <i class="fab fa-facebook-f fa-2x"></i>
+                </a>
+                <a href="#" class="me-4 text-reset text-light">
+                    <i class="fab fa-twitter fa-2x"></i>
+                </a>
+                <a href="#" class="me-4 text-reset text-light">
+                    <i class="fab fa-google fa-2x"></i>
+                </a>
+                <a href="#" class="me-4 text-reset text-light">
+                    <i class="fab fa-instagram fa-2x"></i>
+                </a>
+                <a href="#" class="me-4 text-reset text-light">
+                    <i class="fab fa-linkedin fa-2x"></i>
+                </a>
+                <a href="#" class="me-4 text-reset text-light">
+                    <i class="fab fa-github fa-2x"></i>
+                </a>
+            </div>
+        </section>
+        <section class="text-center text-md-start">
+            <div class="container py-5">
+                <div class="row mt-3">
+                    <div class="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
+                        <h6 class="text-uppercase fw-bold mb-4" style="font-size: 1.2rem;">
+                            <i class="fas fa-clinic-medical me-2 text-secondary"></i>Clínica Angry
+                        </h6>
+                        <p style="font-size: 18px;">
+                            Somos una clínica comprometida con la salud y el bienestar de nuestros pacientes. Ofrecemos
+                            servicios
+                            médicos de calidad con un equipo profesional y dedicado.
+                        </p>
+                    </div>
+                    <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
+                        <h6 class="text-uppercase fw-bold mb-4" style="font-size: 1.2rem;">
+                            Servicios
+                        </h6>
+                        <p><a href="#!" class="text-reset" style="font-size: 18px;">Consultas Médicas</a></p>
+                        <p><a href="#!" class="text-reset" style="font-size: 18px;">Exámenes de Laboratorio</a></p>
+                        <p><a href="#!" class="text-reset" style="font-size: 18px;">Terapias</a></p>
+                        <p><a href="#!" class="text-reset" style="font-size: 18px;">Atención de Urgencias</a></p>
+                    </div>
+                    <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
+                        <h6 class="text-uppercase fw-bold mb-4" style="font-size: 1.2rem;">
+                            Enlaces útiles
+                        </h6>
+                        <p><a href="#!" class="text-reset" style="font-size: 18px;">Precios</a></p>
+                        <p><a href="#!" class="text-reset" style="font-size: 18px;">Configuración</a></p>
+                        <p><a href="#!" class="text-reset" style="font-size: 18px;">Citas</a></p>
+                        <p><a href="#!" class="text-reset" style="font-size: 18px;">Ayuda</a></p>
+                    </div>
+                    <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
+                        <h6 class="text-uppercase fw-bold mb-4" style="font-size: 1.2rem;">Contacto</h6>
+                        <p style="font-size: 18px;"><i class="fas fa-map-marker-alt me-3 text-secondary"></i> Lima, Perú
+                        </p>
+                        <p style="font-size: 18px;"><i class="fas fa-envelope me-3 text-secondary"></i>
+                            contacto@clinicaangry.com
+                        </p>
+                        <p style="font-size: 18px;"><i class="fas fa-phone me-3 text-secondary"></i> +51 123 456 789</p>
+                        <p style="font-size: 18px;"><i class="fas fa-print me-3 text-secondary"></i> +51 987 654 321</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="text-center p-4" style="background-color: rgba(0, 0, 0, 0.2); font-size: 18px;">
+            © 2024 Derechos Reservados:
+            <a class="text-reset fw-bold text-light" href="https://clinicaangry.com/">clinicaangry.com</a>
+        </div>
+    </footer>
+
+    <!-- footer ended -->
+
+    <script src="">
+        let menubar = document.querySelector('#menu-bars');
+        let navbar = document.querySelector('.navbar');
+
+        menubar.onclick = () => {
+            menubar.classList.toggle('fa-times');
+            navbar.classList.toggle('active')
+        }
+    </script>
+
+    <script src="/js/reserva.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

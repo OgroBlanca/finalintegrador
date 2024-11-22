@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Administrador - Clínica Angry</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            display: flex;
+            font-family: Arial, sans-serif;
+        }
+
+        .sidebar {
+            height: 100vh;
+            background-color: #f8f9fa;
+            color: #000;
+            padding-top: 20px;
+            padding-left: 15px;
+            padding-right: 15px;
+            width: 250px;
+            position: fixed;
+        }
+
+        .sidebar h4 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .sidebar img {
+            height: 80px;
+            width: 80px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .sidebar a {
+            padding: 10px 15px;
+            display: block;
+            color: #333;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            margin-bottom: 10px;
+            text-decoration: none;
+        }
+
+        .sidebar a:hover {
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+        }
+
+        .dashboard-header {
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 3px;
+        }
+
+        .card {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Barra de navegación lateral -->
+    <div class="sidebar">
+        <div class="text-center"><img src="/img/logo.png" alt="" width="85px" height="80px"></div>
+        <h4>Administrador</h4>
+        <a href="/admin/dashboard"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a href="/empleado/listar"><i class="fas fa-users"></i> Empleados</a>
+        <a href="/admin/medicos"><i class="fas fa-users"></i> Medicos</a>
+        <a href="#"><i class="fas fa-file-alt"></i> Reportes</a>
+        <a href="/usuario/cerrar"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+    </div>
+
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+        <!-- Encabezado del Dashboard -->
+        <div class="dashboard-header text-center">
+            <h1>Panel de Administración</h1>
+            <p>Administre la clínica de manera eficiente</p>
+        </div>
+
+        <!-- Formulario de búsqueda de empleados y botón para añadir -->
+        <div class="container my-5">
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <form class="d-flex" id="searchForm" th:action="@{/empleado/buscarEmpleado}" method="get">
+                        <input class="form-control me-2" type="search" name="nombre" placeholder="Buscar Empleado"
+                            aria-label="Search">
+                        <button class="btn btn-outline-success" type="submit">Buscar</button>
+                    </form>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">+ Añadir
+                        Empleado</button>
+                </div>
+            </div>
+
+            <!-- Tabla de empleados -->
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Empleados Registrados</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-striped" id="employeeTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Apellidos</th>
+                                        <th>Telefono</th>
+                                        <th>Direccion</th>
+                                        <th>Cargo</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="empleado : ${empleados}">
+                                        <td th:text="${empleado.idEmpleado}">1</td>
+                                        <td th:text="${empleado.nombre}">Juan Pérez</td>
+                                        <td th:text="${empleado.apellidos}">Recepcionista</td>
+                                        <td th:text="${empleado.telefono}"></td>
+                                        <td th:text="${empleado.direccion}"></td>
+                                        <td th:text="${empleado.cargo}"></td>
+                                        <td>
+                                            <button th:data-id-empleado="${empleado.idEmpleado}"
+                                                class="btn btn-danger btn-sm confirm-link">Eliminar</button>
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+    <!-- Modal de confirmación -->
+    <div class="modal modal2 fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalLabel">Confirmar Acción</h5>
+                    <button type="button" class="close btn-cerrar-confirmacion" aria-label="Close">
+                        <span aria-hidden="false">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de que deseas ir a esta página?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-cerrar-confirmacion"
+                        data-dismiss="modal2">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="confirmAction">Aceptar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para añadir empleado -->
+    <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addEmployeeModalLabel">Añadir Empleado</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addEmployeeForm" th:action="@{/empleado/crearEmpleado}" th:object="${empleadoDto}"
+                        method="post">
+                        <!-- Campos de la tabla Empleado -->
+                        <div class="mb-3">
+                            <label for="employeeName" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="employeeName" name="nombre" th:field="*{nombre}"
+                                required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="employeeLastName" class="form-label">Apellidos</label>
+                            <input type="text" class="form-control" id="employeeLastName" name="apellidos"
+                                th:field="*{apellidos}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="employeePhone" class="form-label">Teléfono</label>
+                            <input type="text" class="form-control" id="employeePhone" name="telefono"
+                                th:field="*{telefono}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="employeeAddress" class="form-label">Dirección</label>
+                            <textarea class="form-control" id="employeeAddress" name="direccion"
+                                th:field="*{direccion}"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="employeePosition" class="form-label">Cargo</label>
+                            <input type="text" class="form-control" id="employeePosition" name="cargo"
+                                th:field="*{cargo}">
+                        </div>
+
+                        <!-- Campos de la tabla Usuario -->
+                        <div class="mb-3">
+                            <label for="employeeEmail" class="form-label">Correo</label>
+                            <input type="email" class="form-control" id="employeeEmail" name="correo"
+                                th:field="*{correo}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="employeePassword" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="employeePassword" name="contrasena"
+                                th:field="*{contrasena}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="employeeRole" class="form-label">Rol</label>
+                            <select class="form-select" id="employeeRole" name="id_rol" th:field="*{idRol}" required>
+                                <option value="">Seleccionar...</option>
+                                <option value="1">Admin</option>
+                                <option value="3">Recepcionista</option>
+                                <!-- Asigna los valores de cada rol según tu base de datos -->
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            <button type="submit" class="btn btn-primary">Añadir Empleado</button>
+                        </div>
+
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Variable global para almacenar el enlace al que se debe redirigir
+        let idEmpleado = 0;
+
+        // Al hacer clic en cualquier enlace con la clase 'confirm-link', mostrar el modal
+        document.querySelectorAll('.confirm-link').forEach(link => {
+            link.addEventListener('click', function () {
+                idEmpleado = link.getAttribute("data-id-empleado"); // Guardar el enlace en la variable global
+                $('#confirmModal').modal('show'); // Mostrar el modal
+            });
+        });
+
+        // Al hacer clic en "Aceptar", redirigir al usuario al enlace almacenado
+        document.getElementById('confirmAction').addEventListener('click', function (event) {
+            event.preventDefault(); // Evita la recarga de la página
+            fetch(`/api/v1/empleado/eliminar`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(idEmpleado)
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert("Empleado eliminado con éxito");
+                        location.reload(); // Recargar la página o redirigir
+                    } else {
+                        response.text().then(errorMessage => alert("Error: " + errorMessage));
+                    }
+                })
+                .catch(error => console.error('Error en la eliminación:', error));
+        });
+        //Al hacer click en cerrar se cierra el model de confirmacion
+        document.querySelectorAll('.btn-cerrar-confirmacion').forEach(close => {
+            close.addEventListener('click', function () {
+                $('#confirmModal').modal('hide');
+            })
+        });
+
+    </script>
+</body>
+
+</html>

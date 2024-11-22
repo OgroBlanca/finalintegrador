@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clínica Angry</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<style>
+    footer{
+        bottom: 0;
+        margin-top: 100px !important;
+    }
+    .form-control{
+      height: 33px;
+      text-transform: none  !important;
+      font-size: 13px;
+    }
+    form{
+        font-size: 14px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        
+    }
+    button[type=submit]{
+        height: 33px;
+        font-size: medium;
+        font-weight: 200;
+    }
+</style>
+
+<body>
+
+    <!-- Barra de navegación -->
+    <header>
+        <div class="logo"><img th:src="@{/img/logo.png}" alt="" /></div>
+    
+        <nav class="navbar">
+          <a th:href="@{/home}">Inicio</a>
+          <a th:href="@{/nosotros}">Acerca de</a>
+          <a th:href="@{/doctor}">Médicos</a>
+          <a th:href="@{/servicios}">Servicios</a>
+        </nav>
+    
+    
+    
+        <!-- Sección del Usuario -->
+        <ul sec:authorize="isAuthenticated()" class="navbar-nav ms-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+              aria-expanded="false">
+              <img src="https://via.placeholder.com/30" class="rounded-circle" alt="Usuario"> <span
+                sec:authentication="principal.username"></span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+              <li><a class="dropdown-item" href="#">Perfil</a></li>
+              <li sec:authorize="!hasRole('ROLE_PACIENTE')">
+                <a class="dropdown-item" sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{/admin/dashboard}">Dashboard</a>
+                <a class="dropdown-item" sec:authorize="hasRole('ROLE_MEDICO')" th:href="@{/medico/dashboard}">Dashboard</a>
+                <a class="dropdown-item" sec:authorize="hasRole('ROLE_RECEPCIONISTA')" th:href="@{/recepcionista/dashboard}">Dashboard</a>
+              </li>
+              <li><a class="dropdown-item" href="/usuario/cerrar">Cerrar sesión</a></li>
+            </ul>
+          </li>
+        </ul>
+    
+        <ul sec:authorize="isAnonymous()" class="navbar-nav ms-auto">
+          <li class="nav-item dropdown">
+            <a class="btn btn-primary" href="/usuario/login" id="bton"> iniciar sesion</a>
+          </li>
+        </ul>
+        </div>
+        </div>
+        </nav>
+      </header>
+
+    <!-- Registrarse -->
+    <div class="container mt-5 mb-5">
+        <h2 class="text-center">Registrarse</h2>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <form th:action="@{/usuario/crear}" th:object="${registroDto}" method="post">
+                    <div class="mb-3">
+                        <label for="firstName" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" th:field="*{nombre}" placeholder="Ingrese su nombre"
+                            required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="lastName" class="form-label">Apellidos</label>
+                        <input type="text" class="form-control" th:field="*{apellidos}"
+                            placeholder="Ingrese sus apellidos" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Teléfono</label>
+                        <input type="tel" class="form-control" th:field="*{telefono}" placeholder="Ingrese su teléfono"
+                            required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="dni" class="form-label">DNI</label>
+                        <input type="number" class="form-control" th:field="*{dni}" placeholder="Ingrese su DNI"
+                            required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="birthdate" class="form-label">Fecha de Nacimiento</label>
+                        <input type="date" class="form-control" th:field="*{fechaNacimiento}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Correo Electrónico</label>
+                        <input type="email" class="form-control" id="email" th:field="*{correo}" placeholder="Ingrese su correo"
+                            required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" th:field="*{contrasena}"
+                            placeholder="Ingrese su contraseña" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
+                        <input type="password" class="form-control" th:field="*{confirmarContrasena}"
+                            placeholder="Confirme su contraseña" required>
+                    </div>
+                    <p th:if="${error != null}" th:text="'Error: ' + ${error}" class="text-danger"></p>
+                    <button type="submit" class="btn btn-primary w-100 mt-3">Registrarse</button>
+                    
+                    <div class="d-flex justify-content-between mt-3">
+                        <div>
+                            <a href="/usuario/iniciar-sesion" class="link-primary">¿Ya tienes cuenta? Inicia sesión</a>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+   
+
+
+    <!-- Pie de página -->
+    <footer class="bg-dark text-white text-center py-5 mt-5">
+        <p>&copy; 2024 Clínica Angry. Todos los derechos reservados.</p>
+    </footer>
+
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>
