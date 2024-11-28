@@ -14,89 +14,6 @@
         href="https://cdn-uicons.flaticon.com/2.1.0/uicons-regular-rounded/css/uicons-regular-rounded.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}" />
-    <style>
-        .cita-medica {
-            text-align: center;
-        }
-
-        .month-carousel,
-        .week-carousel {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 10px 0;
-        }
-
-        .month-carousel button,
-        .week-carousel button {
-            padding: 10px;
-            margin: 0 10px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        #days-container {
-            display: flex;
-            justify-content: center;
-            overflow-x: auto;
-            padding: 10px;
-            padding-left: 1090px;
-            gap: 10px;
-        }
-
-        #hours-container {
-            margin-top: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        .hour {
-            background: #007bff;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .hour:hover {
-            background: #0056b3;
-        }
-
-        .day {
-            background: #e0e0e0;
-            /* Gris por defecto */
-            padding: 10px;
-            border-radius: 50%;
-            min-width: 60px;
-            text-align: center;
-            cursor: not-allowed;
-            user-select: none;
-            color: #a0a0a0;
-        }
-
-        .day.enabled {
-            background: #007bff;
-            color: white;
-            cursor: pointer;
-        }
-
-        .day.enabled:hover {
-            background: #0056b3;
-        }
-
-        .day.disabled {
-            background: #e0e0e0;
-            color: #a0a0a0;
-        }
-
-        .day.today {
-            background: #007bff;
-            color: white;
-        }
-    </style>
 </head>
 
 <body>
@@ -122,23 +39,34 @@
                         sec:authentication="principal.username"></span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                    <li><a class="dropdown-item" href="#">Perfil</a></li>
+                    <li>
+                        <a class="dropdown-item" sec:authorize="hasRole('ROLE_PACIENTE')"
+                            th:href="@{/paciente/perfil}">Perfil</a>
+                        <a class="dropdown-item" sec:authorize="hasRole('ROLE_ADMIN')"
+                            th:href="@{/admin/perfil}">Perfil</a>
+                        <a class="dropdown-item" sec:authorize="hasRole('ROLE_MEDICO')"
+                            th:href="@{/medico/perfil}">Perfil</a>
+                        <a class="dropdown-item" sec:authorize="hasRole('ROLE_RECEPCIONISTA')"
+                            th:href="@{/recepcionista/perfil}">Perfil</a>
+                    </li>
                     <li sec:authorize="!hasRole('ROLE_PACIENTE')">
                         <a class="dropdown-item" sec:authorize="hasRole('ROLE_ADMIN')"
                             th:href="@{/admin/dashboard}">Dashboard</a>
                         <a class="dropdown-item" sec:authorize="hasRole('ROLE_MEDICO')"
-                            th:href="@{/medico/dashboard}">Dashboard</a>
+                            th:href="@{/medico/home}">Dashboard</a>
                         <a class="dropdown-item" sec:authorize="hasRole('ROLE_RECEPCIONISTA')"
                             th:href="@{/recepcionista/dashboard}">Dashboard</a>
                     </li>
-                    <li><a class="dropdown-item" href="/usuario/cerrar">Cerrar sesión</a></li>
+                    <li sec:authorize="hasRole('ROLE_PACIENTE')"> <a class="dropdown-item" th:href="@{/paciente/reservar}">Reservar cita</a>
+                    </li>
+                    <li><a class="dropdown-item" href="/logout">Cerrar sesión</a></li>
                 </ul>
             </li>
         </ul>
 
         <ul sec:authorize="isAnonymous()" class="navbar-nav ms-auto">
             <li class="nav-item dropdown">
-                <a class="btn btn-primary" href="/usuario/iniciar-sesion" id="bton"> iniciar sesion</a>
+                <a class="btn btn-primary" href="/usuario/login" id="bton"> iniciar sesion</a>
             </li>
         </ul>
         </div>
@@ -146,63 +74,46 @@
         </nav>
     </header>
 
-    <main>
-        <section class="cita-medica">
-            <div class="container">
-                <!-- Paso 1: Escoger especialidad y médico -->
-                <div id="paso1" class="paso">
-                    <h2 class="text-center mb-4">Paso 1: Escoge la especialidad y al médico</h2>
-                    <form>
-                        <div class="mb-4">
-                            <label for="especialidad" class="form-label">Especialidad</label>
-                            <select id="especialidad" class="form-select" onchange="mostrarMedicos(this)">
-                                <option value="" selected disabled>Selecciona una especialidad</option>
-                                <option th:each="especialidad : ${especialidades}"
-                                    th:value="${especialidad.idEspecialidad}"
-                                    th:text="${especialidad.nombreEspecialidad}"></option>
-                            </select>
-                        </div>
-                        <div class="mb-4">
-                            <label for="medico" class="form-label">Médico</label>
-                            <select id="medico" class="form-select">
-                                <option value="" selected disabled>Selecciona un médico</option>
-                            </select>
-                        </div>
-                        <button id="escogerMedico" type="button" class="btn btn-primary"
-                            onclick="cargarHorasMedico(); mostrarPaso(2);">Siguiente</button>
-                    </form>
-                </div>
-                <div id="paso2" class="paso d-none">
-
-                    <h1>Paso 2: Escoge el Horario</h1>
-                    <div class="step2">
-                        <div class="month-carousel">
-                            <button id="prev-month">←</button>
-                            <span id="current-month">Enero</span>
-                            <button id="next-month">→</button>
-                        </div>
-
-                        <div class="week-carousel">
-                            <button id="prev-week">←</button>
-                            <div id="days-container">
-                                <!-- Días se generarán dinámicamente aquí -->
-                            </div>
-                            <button id="next-week">→</button>
-                        </div>
-                        <div id="hours-container">
-
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10 col-12 text-center">
+                <!-- Información de Usuario -->
+                <div class="card shadow-lg p-4 mb-4">
+                    <h2 class="card-title mb-4 text-primary">Información del Usuario</h2>
+                    <div class="d-flex justify-content-center align-items-center mb-3">
+                        <i class="fas fa-user-circle fa-4x text-secondary"></i>
+                        <div class="ms-3">
+                            <h4 class="mb-1" th:text="${perfilDto.nombre} +' '+ ${perfilDto.apellidos}"
+                                style="font-size: 1.8rem;">Juan Pérez</h4>
+                            <p class="mb-1" style="font-size: 1.2rem;">Teléfono: <span class="text-muted"
+                                    th:text="${perfilDto.telefono}">+51 987 654 321</span></p>
                         </div>
                     </div>
-                    <button type="button" class="btn btn-secondary" onclick="mostrarPaso(1)">Anterior</button>
-                    <form id="myForm" action="/paypal/payment/create" method="post">
-                        <input type="hidden" name="data" id="data">
-                        <button type="submit" class="btn btn-primary" id="submitBtn">Pagar Servicio</button>
-                    </form>
+                </div>
 
+                <!-- Citas del Usuario -->
+                <div sec:authorize="hasRole('ROLE_PACIENTE')" class="card shadow-lg p-4">
+                    <h2 class="card-title mb-4 text-success">Citas Agendadas</h2>
+                    <ul class="list-group">
+                        <!-- Iteración de citas -->
+                        <li th:if="${not #lists.isEmpty(citas)}"
+                            class="list-group-item d-flex justify-content-between align-items-center"
+                            th:each="cita : ${citas}">
+                            <span class="fw-bold" style="font-size: 1.2rem;">Cita con Dr. <span
+                                    th:text="${cita.medico.nombre}"></span></span>
+                            <span class="badge bg-primary" style="font-size: 1.1rem;"><span
+                                    th:text="${cita.fecha}"></span>, <span th:text="${cita.hora}"></span></span>
+                        </li>
+                        <!-- Si no tiene citas -->
+                        <li th:if="${#lists.isEmpty(citas)}" class="list-group-item text-center text-muted"
+                            id="no-citas">
+                            No tienes citas agendadas.
+                        </li>
+                    </ul>
                 </div>
             </div>
-        </section>
-    </main>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="text-center text-lg-start bg-dark text-light pt-5">
@@ -291,9 +202,6 @@
             menubar.classList.toggle('fa-times');
             navbar.classList.toggle('active')
         }
-    </script>
-
-    <script src="/js/reserva.js">
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>

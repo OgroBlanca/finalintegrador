@@ -1,6 +1,7 @@
 package pe.edu.utp.controller.view;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +18,7 @@ public class HorarioMedicoController {
     HorarioMedicoFacade horarioFacade;
     
     
-
+    @PreAuthorize("hasRole('ROLE_MEDICO')")
     @GetMapping("/crear")
     public String crearHorario(Model model){
      HorarioDto horario = new HorarioDto();
@@ -25,6 +26,7 @@ public class HorarioMedicoController {
      return "medico-disponibilidad-crear";
     }
 
+    @PreAuthorize("hasRole('ROLE_MEDICO')")
     @GetMapping("/eliminar/{id}")
     public String eliminar(@PathVariable("id") Integer id){
     horarioFacade.eliminarHorarioMedico(id);

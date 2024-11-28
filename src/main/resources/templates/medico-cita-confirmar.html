@@ -109,43 +109,42 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-header">
-                            <h5>Citas Realizadas</h5>
+                            <h5>Detalles de la Cita</h5>
                         </div>
                         <div class="card-body">
-                            <!-- Contenedor de búsqueda -->
-                            <div class="search-container mb-3">
-                                <form class="input-group" th:action="@{/medico/citasRealizadas}" method="post">
-                                    <input type="date" class="form-control" name="fecha" placeholder="Buscar por fecha">
-                                    <button class="btn btn-primary" type="submit">Buscar</button>
-                                </form>
-                            </div>
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Fecha</th>
-                                        <th>Hora</th>
-                                        <th>Paciente</th>
-                                        <th>Especialidad</th>
-                                        <th>Estado</th>
-                                        <th>Acción</th> <!-- Nueva columna para las acciones -->
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:each="cita : ${citas}">
-                                        <td th:text="${cita.fecha}">25/10/2024</td>
-                                        <td th:text="${cita.hora}">10:00 AM</td>
-                                        <td th:text="${cita.paciente.nombre}">Juan Pérez</td>
-                                        <td th:text="${cita.medico.especialidad.nombreEspecialidad}">Cardiología</td>
-                                        <td th:text="${cita.estado}">Confirmada</td>
-                                    </tr>
-                                    <!-- Más citas pueden ser añadidas aquí -->
-                                </tbody>
-                            </table>
+                            <!-- Formulario para editar y confirmar la asistencia -->
+                            <form th:action="@{/cita/confirmar}" method="post" th:object="${citaDto}">
+                                <!-- Campo oculto para el ID de la cita -->
+                                <input type="hidden" name="idCita" th:field="*{idCita}">
+        
+                                <div class="mb-3">
+                                    <label for="fecha" class="form-label">Fecha</label>
+                                    <input type="text" id="fecha" name="fecha" class="form-control" th:field="*{fecha}" readonly>
+                                </div>
+        
+                                <div class="mb-3">
+                                    <label for="hora" class="form-label">Hora</label>
+                                    <input type="text" id="hora" name="hora" class="form-control" th:field="*{hora}" readonly>
+                                </div>
+        
+                                <div class="mb-3">
+                                    <label for="paciente" class="form-label">Paciente</label>
+                                    <input type="text" id="paciente" name="paciente" class="form-control" th:field="*{nombrePaciente}" readonly>
+                                </div>
+        
+                                <div class="mb-3">
+                                    <label for="detalle" class="form-label">Detalle</label>
+                                    <textarea id="detalle" name="detalle" class="form-control" rows="3" th:field="*{detalle}"></textarea>
+                                </div>
+        
+                                <button type="submit" class="btn btn-primary">Confirmar Asistencia</button>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        
     </div>
 
     <!-- Bootstrap JS -->

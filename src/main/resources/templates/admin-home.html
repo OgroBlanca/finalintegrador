@@ -71,11 +71,11 @@ xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
 <div class="sidebar">
     <div class="text-center"><img src="/img/logo.png" alt="" width="85px" height="80px"></div>
     <h4>Administrador</h4>
-    <a href="#"><i class="fas fa-chart-line"></i> Dashboard</a>
-    <a href="/admin/empleados"><i class="fas fa-users"></i> Empleados</a>
-    <a href="/admin/medicos"><i class="fas fa-users"></i> Medicos</a>
-    <a href="#"><i class="fas fa-file-alt"></i> Reportes</a>
-    <a href="/usuario/cerrar"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+    <a href="/admin/dashboard"><i class="fas fa-chart-line"></i> Dashboard</a>
+    <a href="/empleado/listar"><i class="fas fa-users"></i> Empleados</a>
+    <a href="/medico/listar"><i class="fas fa-users"></i> Medicos</a>
+    <a href="/admin/reportes"><i class="fas fa-file-alt"></i> Reportes</a>
+    <a href="/logout"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
 </div>
 
 
@@ -97,7 +97,7 @@ xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
                     </div>
                     <div class="card-body">
                         <p class="card-text" th:text="${numEmpleados} + ' Empleados'"></p>
-                        <a href="/admin/empleados" class="btn btn-primary">Gestionar Empleados</a>
+                        <a href="/empleado/listar" class="btn btn-primary">Gestionar Empleados</a>
                     </div>
                 </div>
             </div>
@@ -108,18 +108,18 @@ xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
                     </div>
                     <div class="card-body">
                         <p class="card-text" th:text="${numMedicos} + ' Medicos'"></p>
-                        <a href="/admin/medicos" class="btn btn-primary">Gestionar Medicos</a>
+                        <a href="/medico/listar" class="btn btn-primary">Gestionar Medicos</a>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-header">
-                        <h5>Reportes Generados</h5>
+                        <h5>Genera tus reportes</h5>
                     </div>
                     <div class="card-body">
-                        <p class="card-text">10 Reportes este Mes</p>
-                        <a href="#" class="btn btn-primary">Ver Reportes</a>
+                        <p class="card-text">Descarga en pdf tus reportes</p>
+                        <a href="/admin/reportes" class="btn btn-primary">Ver Reportes</a>
                     </div>
                 </div>
             </div>
@@ -162,46 +162,8 @@ xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
     </div>
 </div>
 
-<script>
-    document.getElementById('descargarBtn').addEventListener('click', function() {
-    // Obtener los datos de la tabla
-    const tableData = [];
-    const rows = document.querySelectorAll('#miTabla tr');
-
-    rows.forEach(row => {
-        const cols = row.querySelectorAll('td, th'); // Obtener tanto celdas como encabezados
-        const rowData = Array.from(cols).map(col => col.innerText); // Obtener texto de cada celda
-        tableData.push(rowData);
-    });
-
-    // Enviar los datos al servidor
-    fetch('/download/pdf', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ tableData: tableData })
-    })
-    .then(response => {
-        if (response.ok) {
-            return response.blob(); // Obtener el blob de la respuesta
-        }
-        throw new Error('Error al descargar el PDF');
-    })
-    .then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        a.download = 'tabla.pdf'; // Nombre del archivo
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-});
+<script src="/js/pdf.js">
+    
 </script>
 
 <!-- Bootstrap JS -->

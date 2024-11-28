@@ -81,10 +81,10 @@
         <div class="text-center"><img src="/img/logo.png" alt="" width="85px" height="80px"></div>
         <h4>Administrador</h4>
         <a href="/admin/dashboard"><i class="fas fa-chart-line"></i> Dashboard</a>
-        <a href="/admin/empleados"><i class="fas fa-users"></i> Empleados</a>
-        <a href="/admin/medicos"><i class="fas fa-users"></i> Medicos</a>
-        <a href="#"><i class="fas fa-file-alt"></i> Reportes</a>
-        <a href="/usuario/cerrar"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+        <a href="/empleado/listar"><i class="fas fa-users"></i> Empleados</a>
+        <a href="/medico/listar"><i class="fas fa-users"></i> Medicos</a>
+        <a href="/admin/reportes"><i class="fas fa-file-alt"></i> Reportes</a>
+        <a href="/logout"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
     </div>
 
 
@@ -141,7 +141,6 @@
                                         <td th:text="${medico.direccion}"></td>
                                         <td th:text="${medico.telefono}"></td>
                                         <td>
-                                            <button class="btn btn-warning btn-sm">Editar</button>
                                             <button th:data-id-medico="${medico.idMedico}"class="btn btn-danger btn-sm confirm-link">Eliminar</button>
                                         </td>
                                     </tr>

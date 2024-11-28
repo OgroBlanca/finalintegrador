@@ -98,13 +98,13 @@
 <body>
     <!-- Barra de navegación lateral -->
     <div class="sidebar p-3">
-        <div class="img-logo"><img src="./img/logo.png" alt="Logo de la Clínica Angry"></div>
-        <h4>Dr. Smith</h4>
-        <a href="#">Dashboard</a>
-        <a href="#">Gestionar disponibilidad</a>
-        <a href="#">Citas Pendientes</a>
-        <a href="#">Citas Realizadas</a>
-        <a href="#">Cerrar sesión</a>
+        <div class="img-logo"><img th:src="@{/img/logo.png}" alt="Logo de la Clínica Angry"></div>
+        <h4>Dr. <span sec:authentication="principal.username"></span></h4>
+        <a href="/medico/home">Dashboard</a>
+        <a href="/medico/disponibilidad">Gestionar Disponibilidad</a>
+        <a href="/medico/citasPendientes">Citas Pendientes</a>
+        <a href="/medico/citasRealizadas">Citas Realizadas</a>
+        <a href="/logout">Cerrar sesión</a>
     </div>
 
     <!-- Contenido principal -->

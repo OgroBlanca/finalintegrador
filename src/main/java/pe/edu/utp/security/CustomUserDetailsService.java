@@ -39,9 +39,12 @@ public class CustomUserDetailsService implements UserDetailsService {
 		} else if(user.getPaciente() != null){
 			nombre = user.getPaciente().getNombre();
 			idCargo = user.getPaciente().getIdPaciente();
-		} else {
-            nombre = user.getMedico().getNombre();
+		} else if (user.getMedico() != null) {  // Verifica si el medico no es nulo
+			nombre = user.getMedico().getNombre();
 			idCargo = user.getMedico().getIdMedico();
+		} else {
+			System.out.println("---------" + user.getRol());
+			throw new UsernameNotFoundException("El usuario no tiene un rol válido.");
 		}
 		return new CustomUserDetails(nombre, user.getContrasena(), authorities(user),
 				user.getCorreo(),idCargo);

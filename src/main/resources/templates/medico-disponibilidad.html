@@ -140,14 +140,14 @@ xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
 
     <!-- Barra de navegación lateral -->
     <div class="sidebar p-3">
-        <div class="img-logo"><img src="./img/logo.png" alt=""></div>
+        <div class="img-logo"><img th:src="@{/img/logo.png}" alt=""></div>
 
-        <h4>Dr. Smith</h4>
-        <a href="#">Dashboard</a>
-        <a href="#">Gestionar Disponibilidad</a>
-        <a href="#">Citas Pendientes</a>
-        <a href="#">Citas Realizadas</a>
-        <a href="#">Cerrar sesión</a>
+        <h4>Dr. <span sec:authentication="principal.username"></span></h4>
+        <a href="/medico/home">Dashboard</a>
+        <a href="/medico/disponibilidad">Gestionar Disponibilidad</a>
+        <a href="/medico/citasPendientes">Citas Pendientes</a>
+        <a href="/medico/citasRealizadas">Citas Realizadas</a>
+        <a href="/logout">Cerrar sesión</a>
     </div>
 
     <!-- Contenido principal -->
@@ -162,7 +162,7 @@ xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
         <div class="container-custom">
 
             <!-- Formulario de búsqueda por fecha -->
-            <form th:action="@{/medico/buscarDisponibilidad}" method="get" class="search-form">
+            <form th:action="@{/medico/disponibilidad}" method="post" class="search-form">
                 <div class="d-flex align-items-center">
                     <label for="fechaBusqueda" class="mb-0">Buscar por fecha:</label>
                     <input type="date" id="fechaBusqueda" name="fecha" class="form-control mx-2">

@@ -34,6 +34,11 @@ public class CitaMedicaFacade {
         return service.obtenerCitasPorMedicos(id,estado);
     }
 
+    //Metodo para obtener todas las citas segun el paciente
+    public List<CitaMedica> obtenerCitasPorPaciente(Integer idPaciente){
+        return service.obtenerCitasPorPaciente(idPaciente);
+    }
+
 
     // Método para actualizar una cita médica existente
     public CitaMedica actualizarCitaMedica(CitaMedica citaMedica) {

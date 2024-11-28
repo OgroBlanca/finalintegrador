@@ -31,4 +31,9 @@ public class IndexController {
     public String reserva(){
         return "paciente-reserva";
     }
+
+    @GetMapping("/access-denied")
+    public String mensaje(){
+        return "acceso-denegado";
+    }
 }

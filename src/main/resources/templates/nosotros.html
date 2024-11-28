@@ -26,31 +26,29 @@ xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
 
     
       <!-- Sección del Usuario -->
-      <ul th:if="${session.seccion}" class="navbar-nav ms-auto">
+      <ul sec:authorize="isAuthenticated()" class="navbar-nav ms-auto">
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
             aria-expanded="false">
             <img src="https://via.placeholder.com/30" class="rounded-circle" alt="Usuario"> <span
-              th:text="${session.nombre}"></span>
+              sec:authentication="principal.username"></span>
           </a>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
             <li><a class="dropdown-item" href="#">Perfil</a></li>
-            <li th:unless="${session.rol == 'PACIENTE'}">
-              <a class="dropdown-item" 
-                th:href="${session.rol == 'RECEPCIONISTA' ? '/recepcionista/dashboard' : 
-                          session.rol == 'ADMIN' ? '/admin/dashboard' : 
-                          session.rol == 'MEDICO' ? '/medico/dashboard' : '#'}">
-                  Dashboard
-              </a>
-          </li>
-            <li><a class="dropdown-item" href="/usuario/cerrar">Cerrar sesión</a></li>
+            <li sec:authorize="!hasRole('ROLE_PACIENTE')">
+              <a class="dropdown-item" sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{/admin/dashboard}">Dashboard</a>
+              <a class="dropdown-item" sec:authorize="hasRole('ROLE_MEDICO')" th:href="@{/medico/home}">Dashboard</a>
+              <a class="dropdown-item" sec:authorize="hasRole('ROLE_RECEPCIONISTA')" th:href="@{/recepcionista/dashboard}">Dashboard</a>
+            </li>
+            <li sec:authorize="hasRole('ROLE_PACIENTE')"> <a class="dropdown-item" th:href="@{/paciente/reservar}">Reservar cita</a></li>
+            <li><a class="dropdown-item" href="/logout">Cerrar sesión</a></li>
           </ul>
         </li>
       </ul>
 
-      <ul th:if="${session.seccion == null or !session.seccion}" class="navbar-nav ms-auto">
+      <ul sec:authorize="isAnonymous()" class="navbar-nav ms-auto">
         <li class="nav-item dropdown">
-          <a class="btn btn-primary" href="/usuario/iniciar-sesion" id="bton"> iniciar sesion</a>
+          <a class="btn btn-primary" href="/usuario/login" id="bton"> iniciar sesion</a>
         </li>
       </ul>
     </div>

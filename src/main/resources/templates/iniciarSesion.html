@@ -58,17 +58,18 @@ xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
               <li><a class="dropdown-item" href="#">Perfil</a></li>
               <li sec:authorize="!hasRole('ROLE_PACIENTE')">
                 <a class="dropdown-item" sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{/admin/dashboard}">Dashboard</a>
-                <a class="dropdown-item" sec:authorize="hasRole('ROLE_MEDICO')" th:href="@{/medico/dashboard}">Dashboard</a>
+                <a class="dropdown-item" sec:authorize="hasRole('ROLE_MEDICO')" th:href="@{/medico/home}">Dashboard</a>
                 <a class="dropdown-item" sec:authorize="hasRole('ROLE_RECEPCIONISTA')" th:href="@{/recepcionista/dashboard}">Dashboard</a>
               </li>
-              <li><a class="dropdown-item" href="/usuario/cerrar">Cerrar sesión</a></li>
+              <li sec:authorize="hasRole('ROLE_PACIENTE')"> <a class="dropdown-item" th:href="@{/paciente/reservar}">Reservar cita</a></li>
+              <li><a class="dropdown-item" href="/logout">Cerrar sesión</a></li>
             </ul>
           </li>
         </ul>
     
         <ul sec:authorize="isAnonymous()" class="navbar-nav ms-auto">
           <li class="nav-item dropdown">
-            <a class="btn btn-primary" href="/usuario/iniciar-sesion" id="bton"> iniciar sesion</a>
+            <a class="btn btn-primary" href="/usuario/login" id="bton"> iniciar sesion</a>
           </li>
         </ul>
         </div>

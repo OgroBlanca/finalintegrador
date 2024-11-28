@@ -27,6 +27,11 @@ public class CitaMedicaService {
         return citaMedicaRepository.findAll();
     }
 
+    //Metodo para obtener todas las citas segun el paciente
+    public List<CitaMedica> obtenerCitasPorPaciente(Integer idPaciente){
+        return citaMedicaRepository.findByPaciente(idPaciente);
+    }
+
     // Método para obtener todas las citas segun el medico y estado
     public List<CitaMedica> obtenerCitasPorMedicos(Integer id, EstadoCita estado) {
         return citaMedicaRepository.findByMedicoAndEstado(id,estado);

@@ -3,6 +3,7 @@ package pe.edu.utp.controller.view;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,7 +34,7 @@ public class EmpleadoController {
     private UsuarioFacade usuarioFacade;
 
 
-
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/listar")
     public String empleados(Model model) {
         List<Empleado> empleados = empleadoFacade.obtenerTodosEmpleados();
@@ -42,7 +43,7 @@ public class EmpleadoController {
         model.addAttribute("empleadoDto", empleadoDto);
         return "admin-empleados";
     }
-
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/crearEmpleado")
     public String crearEmpleado(@ModelAttribute EmpleadoDto empleadoDto) {
         Empleado empleado = new Empleado();
@@ -60,7 +61,7 @@ public class EmpleadoController {
         empleadoFacade.registrarEmpleado(empleado);
         return "redirect:/empleado/listar";
     }
-
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/buscarEmpleado")
     public String buscarEmpleado(@RequestParam("nombre") String nombre, Model model){
         List<Empleado> empleados = empleadoFacade.buscarPorNombre(nombre);
@@ -69,7 +70,7 @@ public class EmpleadoController {
         model.addAttribute("empleadoDto", empleadoDto);
         return "admin-empleados";
     }
-
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/eliminar/{id}")
     public RedirectView eliminarEmpleado(@PathVariable Integer id){
     empleadoFacade.eliminarEmpleado(id);

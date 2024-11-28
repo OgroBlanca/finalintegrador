@@ -15,14 +15,14 @@ public class Especialidad {
     @Column(length = 255)
     private String descripcion;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal precio;
+    @Column(nullable = false)
+    private Double precio;
 
     public Especialidad() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Especialidad(Integer idEspecialidad, String nombreEspecialidad, String descripcion, BigDecimal precio) {
+	public Especialidad(Integer idEspecialidad, String nombreEspecialidad, String descripcion, Double precio) {
 		super();
 		this.idEspecialidad = idEspecialidad;
 		this.nombreEspecialidad = nombreEspecialidad;
@@ -54,11 +54,11 @@ public class Especialidad {
 		this.descripcion = descripcion;
 	}
 
-	public BigDecimal getPrecio() {
+	public Double getPrecio() {
 		return precio;
 	}
 
-	public void setPrecio(BigDecimal precio) {
+	public void setPrecio(Double precio) {
 		this.precio = precio;
 	}
     

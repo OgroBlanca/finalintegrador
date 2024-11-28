@@ -29,7 +29,7 @@ public class HorarioMedicoService {
 
     public HashMap<LocalDate, List<String>> obtenerHoras(Integer id) {
         // Recuperar todos los horarios médicos desde la base de datos
-        List<HorarioMedico> horarios = horarioMedicoRepository.findAll();
+        List<HorarioMedico> horarios = obtenerHorarioPorMedico(id);
         List<CitaMedica> citas = citaService.obtenerCitasPorMedicos(id, EstadoCita.EN_ESPERA);
     
         // Crear el HashMap para almacenar la fecha como clave y la lista de horas como valor

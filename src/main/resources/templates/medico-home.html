@@ -76,14 +76,14 @@ xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
 
     <!-- Barra de navegación lateral -->
     <div class="sidebar p-3">
-        <div class="img-logo"><img src="./img/logo.png" alt=""></div>
+        <div class="img-logo"><img th:src="@{/img/logo.png}" alt=""></div>
 
-        <h4>Dr. Smith</h4>
-        <a href="#">Dashboard</a>
-        <a href="#">Gestionar Disponibilidad</a>
-        <a href="#">Citas Pendientes</a>
-        <a href="#">Citas Realizadas</a>
-        <a href="#">Cerrar sesión</a>
+        <h4>Dr. <span sec:authentication="principal.username"></span></h4>
+        <a href="/medico/home">Dashboard</a>
+        <a href="/medico/disponibilidad">Gestionar Disponibilidad</a>
+        <a href="/medico/citasPendientes">Citas Pendientes</a>
+        <a href="/medico/citasRealizadas">Citas Realizadas</a>
+        <a href="/logout">Cerrar sesión</a>
     </div>
 
     <!-- Contenido principal -->
@@ -103,8 +103,8 @@ xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
                             <h5>Citas Programadas</h5>
                         </div>
                         <div class="card-body">
-                            <p class="card-text">10 Citas para hoy</p>
-                            <a href="#" class="btn btn-primary">Ver Citas Pendientes</a>
+                            <p class="card-text"># Citas pendientes</p>
+                            <a href="/medico/citasPendientes" class="btn btn-primary">Ver Citas Pendientes</a>
                         </div>
                     </div>
                 </div>
@@ -114,8 +114,8 @@ xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
                             <h5>Citas Realizadas</h5>
                         </div>
                         <div class="card-body">
-                            <p class="card-text">5 Citas realizadas</p>
-                            <a href="#" class="btn btn-primary">Ver Citas Realizadas</a>
+                            <p class="card-text"># Citas realizadas</p>
+                            <a href="/medico/citasRealizadas" class="btn btn-primary">Ver Citas Realizadas</a>
                         </div>
                     </div>
                 </div>
@@ -125,8 +125,8 @@ xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
                             <h5>Disponibilidad</h5>
                         </div>
                         <div class="card-body">
-                            <p class="card-text">2 dias disponible</p>
-                            <a href="#" class="btn btn-primary">Ver Disponibilidad</a>
+                            <p class="card-text"># dias disponible</p>
+                            <a href="/medico/disponibilidad" class="btn btn-primary">Ver Disponibilidad</a>
                         </div>
                     </div>
                 </div>

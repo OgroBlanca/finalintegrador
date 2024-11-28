@@ -1,7 +1,7 @@
 let medicos = [];
 // Fechas y horas habilitadas (puedes cargarlas dinámicamente desde el backend)
 let fechasConHoras = { };
-
+let medicoAlmacenado ="";
 let fecha = "";
 let hora = "";
 
@@ -192,6 +192,8 @@ function mostrarPaso(paso) {
 function cargarHorasMedico() {
     const selectElement = document.getElementById('medico');
     const medicoSeleccionado = selectElement.value; // Obtiene el valor de la opción seleccionada
+    //Dato medico
+    medicoAlmacenado = medicoSeleccionado;
     
     if (medicoSeleccionado) {
         obtenerHoras(medicoSeleccionado).then(() => {
@@ -203,5 +205,51 @@ function cargarHorasMedico() {
     }
 }
 
+
+
+// Obtén el botón de envío y el formulario
+const form = document.getElementById('myForm');
+const submitBtn = document.getElementById('submitBtn');
+
+
+
+
+document.getElementById('myForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Detener el envío predeterminado del formulario
+
+    // Obtener los valores de los campos del formulario
+    const data = {
+        idMedico: medicoAlmacenado, // medico
+        fechaConfirmada: fecha, // fecha
+        horaConfirmada: hora // hora
+    };
+
+    // Realizar el fetch
+    fetch('/paypal/payment/create', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json', // Especificar que los datos se envían en JSON
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error al crear el pago');
+        }
+        return response.json(); // Convertir la respuesta a JSON
+    })
+    .then(data => {
+        if (data.redirectUrl) {
+            // Redirigir al usuario a PayPal
+            window.location.href = data.redirectUrl;
+        } else {
+            alert('Error: No se encontró la URL de aprobación');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Hubo un problema al procesar el pago');
+    });
+});
 // Initialize calendar
 obtenerMedicos();

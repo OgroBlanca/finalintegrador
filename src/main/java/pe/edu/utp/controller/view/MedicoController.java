@@ -1,9 +1,11 @@
 package pe.edu.utp.controller.view;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import pe.edu.utp.dto.CitaDto;
 import pe.edu.utp.dto.MedicoDto;
+import pe.edu.utp.dto.PerfilDto;
 import pe.edu.utp.model.CitaMedica;
 import pe.edu.utp.model.Especialidad;
 import pe.edu.utp.model.HorarioMedico;
@@ -47,6 +50,7 @@ public class MedicoController {
     @Autowired
     UsuarioFacade usuarioFacade;
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/listar")
     public String medicos(Model model) {
         List<Medico> medicos = medicoFacade.obtenerTodosMedicos();
@@ -57,7 +61,8 @@ public class MedicoController {
         model.addAttribute("especialidades", especialidades);
         return "admin-medicos";
     }
-
+    
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/crear")
     public String crearMedico(@ModelAttribute MedicoDto medicoDto) {
         Medico medico = new Medico();
@@ -76,7 +81,8 @@ public class MedicoController {
         medicoFacade.registrarMedico(medico);
         return "redirect:/medico/listar";
     }
-
+  
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/buscar")
     public String buscarMedico(@RequestParam("nombre") String nombre, Model model) {
         List<Medico> medicos = medicoFacade.buscarMedicos(nombre);
@@ -89,6 +95,7 @@ public class MedicoController {
 
     }
 
+    @PreAuthorize("hasRole('ROLE_MEDICO')")
     @GetMapping("/home")
     public String dashboard(Model model){
       List<CitaMedica> citasMedicas = citaFacade.obtenerTodasCitasMedicas();
@@ -100,7 +107,7 @@ public class MedicoController {
        return "medico-home";
     }
 
-
+    @PreAuthorize("hasRole('ROLE_MEDICO')")
     @GetMapping("/disponibilidad")
     public String disponibilidad(Model model,Authentication authentication){
     // Obtener el usuario autenticado
@@ -110,6 +117,19 @@ public class MedicoController {
     return "medico-disponibilidad";
     }
 
+    /*buscar disponibilidad por fecha */
+    @PreAuthorize("hasRole('ROLE_MEDICO')")
+    @PostMapping("/disponibilidad")
+    public String disponibilidad(@RequestParam("fecha") LocalDate fecha,Model model,Authentication authentication){
+    // Obtener el usuario autenticado
+    CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+    List<HorarioMedico> horarios = horarioFacade.obtenerHorariosPorMedico(userDetails.getIdCargo());
+    horarios.removeIf(horario -> !horario.getFecha().equals(fecha));
+    model.addAttribute("horarios", horarios);
+    return "medico-disponibilidad";
+    }
+
+    @PreAuthorize("hasRole('ROLE_MEDICO')")
     @GetMapping("/citasRealizadas")
     public String citasRealizadas(Model model, Authentication authentication){
       // Obtener el usuario autenticado
@@ -119,6 +139,7 @@ public class MedicoController {
     return "medico-citas-realizadas";
     }
 
+    @PreAuthorize("hasRole('ROLE_MEDICO')")
     @GetMapping("/citasPendientes")
     public String citasPendientes(Model model, Authentication authentication){
       // Obtener el usuario autenticado
@@ -126,6 +147,42 @@ public class MedicoController {
     List<CitaMedica> citas = citaFacade.obtenerCitasPorMedicos(userDetails.getIdCargo(),EstadoCita.EN_ESPERA);
     model.addAttribute("citas", citas);
     return "medico-citas-pendientes";
+    }
+
+    /*metodo para buscar segun la fecha */
+    @PreAuthorize("hasRole('ROLE_MEDICO')")
+    @PostMapping("/citasRealizadas")
+    public String citasRealizadas(@RequestParam("fecha") LocalDate fecha ,Model model, Authentication authentication){
+    // Obtener el usuario autenticado
+    CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+    List<CitaMedica> citas = citaFacade.obtenerCitasPorMedicos(userDetails.getIdCargo(),EstadoCita.CONFIRMADA);
+    //Filtrar las fechas
+    citas.removeIf(cita -> !cita.getFecha().equals(fecha));
+    model.addAttribute("citas", citas);
+    return "medico-citas-realizadas";
+    }
+
+    @PreAuthorize("hasRole('ROLE_MEDICO')")
+    @PostMapping("/citasPendientes")
+    public String citasPendientes(@RequestParam("fecha") LocalDate fecha,Model model, Authentication authentication){
+      // Obtener el usuario autenticado
+    CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+    List<CitaMedica> citas = citaFacade.obtenerCitasPorMedicos(userDetails.getIdCargo(),EstadoCita.EN_ESPERA);
+    //Filtrar las fechas
+    citas.removeIf(cita -> !cita.getFecha().equals(fecha));
+    model.addAttribute("citas", citas);
+    return "medico-citas-pendientes";
+    }
+
+    @PreAuthorize("hasRole('ROLE_MEDICO')")
+    @GetMapping("/perfil")
+    public String perfil(Model model, Authentication authentication){
+      // Obtener el usuario autenticado
+    CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+    Medico medico = medicoFacade.buscarMedicoPorId(userDetails.getIdCargo());
+    PerfilDto perfilDto = new PerfilDto(medico.getNombre(),medico.getApellidos(),medico.getTelefono());
+    model.addAttribute("perfilDto", perfilDto);
+    return "perfil";
     }
 
 
