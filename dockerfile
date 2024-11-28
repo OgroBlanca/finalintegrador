@@ -1,14 +1,23 @@
-# Usa una imagen base con Java 21 (asegúrate de que esté disponible)
-FROM openjdk:21-jdk-slim
+# Etapa 1: Construcción con Maven
+FROM maven:3.8-openjdk-21-slim AS build
 
-# Establece un directorio de trabajo en el contenedor
+# Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copia el archivo JAR generado al contenedor (reemplaza "tu-proyecto.jar" con el nombre real de tu archivo JAR)
-COPY target/AppClinica-0.0.1-SNAPSHOT.jar app.jar
+# Copia el código fuente del repositorio al contenedor
+COPY . /app
 
-# Expón el puerto donde la aplicación Spring Boot va a estar escuchando (ajusta si tu puerto es diferente)
-EXPOSE 8085
+# Ejecuta Maven para construir el archivo JAR
+RUN mvn clean package -DskipTests
 
-# Comando para ejecutar la aplicación cuando se inicie el contenedor
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Etapa 2: Creación de la imagen final que ejecutará el JAR
+FROM openjdk:21-jdk-slim
+
+# Establece el directorio de trabajo dentro del contenedor
+WORKDIR /app
+
+# Copia el archivo JAR generado en la etapa de construcción
+COPY --from=build /app/target/AppClinica-0.0.1-SNAPSHOT.jar /app/app.jar
+
+# Comando para ejecutar la aplicación Spring Boot
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
