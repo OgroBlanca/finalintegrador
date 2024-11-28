@@ -1,5 +1,5 @@
 # Etapa 1: Construcción con Maven y OpenJDK 18
-FROM maven:3.8.7-openjdk-18-slim AS build
+FROM maven:3.8-openjdk-17-slim AS build
 
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
