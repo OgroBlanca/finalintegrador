@@ -21,7 +21,7 @@ FROM openjdk:17-jdk-slim
 COPY --from=build /app/target/*.jar /app/app.jar
 
 # Expone el puerto 8080 para la aplicación
-EXPOSE 8080
+EXPOSE 8085
 
 # Define el comando de inicio para ejecutar el JAR
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
