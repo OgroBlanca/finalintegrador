@@ -101,6 +101,11 @@ public class PaypalController {
     @GetMapping("/payment/success")
     public String paymentSucces(@RequestParam("paymentId") String paymentId,
             @RequestParam("PayerID") String payerId, Authentication authentication, HttpSession session) {
+
+        //verificar duplicidad
+        if(session.getAttribute("idMedico") == null){
+            return "redirect:/paciente/perfil";
+        }
         // Obtener el usuario autenticado
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         String idMedicoStr = (String) session.getAttribute("idMedico");
@@ -117,6 +122,11 @@ public class PaypalController {
                         medicoFacade.buscarMedicoPorId(idMedico), fecha, hora, EstadoCita.EN_ESPERA, "",
                         PagoCita.TARJETA);
                 citaFacade.registrarCitaMedica(cita);
+               session.removeAttribute("idMedico");
+               session.removeAttribute("fecha");
+               session.removeAttribute("hora");
+
+                 
                 return "redirect:/paciente/perfil";
             }
         } catch (PayPalRESTException e) {

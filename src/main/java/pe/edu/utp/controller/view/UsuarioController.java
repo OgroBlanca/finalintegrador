@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import pe.edu.utp.dto.registroDto;
 import pe.edu.utp.model.Paciente;
@@ -34,7 +35,10 @@ public class UsuarioController {
     MedicoFacade medicoFacade;
 
   @GetMapping("/login")
-  public String iniciar() {
+  public String iniciar(@RequestParam(value = "error", required = false) String error,Model model) {
+    if (error != null) {
+      model.addAttribute("error", "Credenciales incorrectas. Por favor, inténtalo de nuevo.");
+  }
      return "iniciarSesion";
   }
   

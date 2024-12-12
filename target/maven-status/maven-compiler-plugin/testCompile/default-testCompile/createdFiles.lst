@@ -1,0 +1,7 @@
+pe\edu\utp\service\MedicoServiceTest.class
+pe\edu\utp\AppClinicaApplicationTests.class
+pe\edu\utp\service\EmpleadoServiceTest.class
+pe\edu\utp\service\EspecialidadServiceTest.class
+pe\edu\utp\service\RolServiceTest.class
+pe\edu\utp\service\UsuarioServiceTest.class
+pe\edu\utp\service\CitaMedicaServiceTest.class

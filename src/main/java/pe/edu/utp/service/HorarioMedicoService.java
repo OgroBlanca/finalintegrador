@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.edu.utp.model.CitaMedica;
 import pe.edu.utp.model.HorarioMedico;
 import pe.edu.utp.model.CitaMedica.EstadoCita;
-import pe.edu.utp.repository.CitaMedicaRepository;
 import pe.edu.utp.repository.HorarioMedicoRepository;
 
 @Service

@@ -13,6 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import pe.edu.utp.security.CustomAccessDeniedHandler;
+import pe.edu.utp.security.CustomAuthenticationFailureHandler;
 import pe.edu.utp.security.CustomUserDetailsService;
 
 /**
@@ -45,6 +46,7 @@ public class SecurityConfig {
 		.requestMatchers("/home").permitAll().and()	
 		.formLogin()
 		.loginPage("/usuario/login")
+		.failureHandler(new CustomAuthenticationFailureHandler())
 		.loginProcessingUrl("/usuario/login")
 		.usernameParameter("correo")
 		.passwordParameter("contraseña")

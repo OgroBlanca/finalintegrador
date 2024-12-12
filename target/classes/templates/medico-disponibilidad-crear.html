@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seleccionar Disponibilidad Médica</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            font-family: Arial, sans-serif;
+        }
+
+        .sidebar {
+            height: 100vh;
+            background-color: #f8f9fa;
+            color: #000;
+            padding-top: 20px;
+            padding-left: 15px;
+            padding-right: 15px;
+            width: 250px;
+            position: fixed;
+        }
+
+        .sidebar h4 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .sidebar img {
+            height: 80px;
+            width: 80px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .sidebar a {
+            padding: 10px 15px;
+            display: block;
+            color: #333;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            margin-bottom: 10px;
+            text-decoration: none;
+        }
+
+        .sidebar a:hover {
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+        }
+
+        .dashboard-header {
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 3px;
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        .time-slot {
+            cursor: pointer;
+            padding: 15px;
+            margin: 5px;
+            background-color: #ffffff;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            text-align: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .time-slot.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .summary {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #ffffff;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Barra de navegación lateral -->
+    <div class="sidebar p-3">
+        <div class="img-logo"><img th:src="@{/img/logo.png}" alt="Logo de la Clínica Angry"></div>
+        <h4>Dr. <span sec:authentication="principal.username"></span></h4>
+        <a href="/medico/home">Dashboard</a>
+        <a href="/medico/disponibilidad">Gestionar Disponibilidad</a>
+        <a href="/medico/citasPendientes">Citas Pendientes</a>
+        <a href="/medico/citasRealizadas">Citas Realizadas</a>
+        <a href="/logout">Cerrar sesión</a>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+        <!-- Encabezado de Pacientes -->
+        <div class="dashboard-header text-center">
+            <h1>Pacientes</h1>
+            <p>Gestione su lista de pacientes aquí.</p>
+        </div>
+
+        <!-- Contenedor de Pacientes -->
+        <div class="container my-5">
+
+            <div class="container">
+                <h1 class="text-center">Seleccionar Disponibilidad</h1>
+                <div class="mb-3">
+                    <label for="date-picker" class="form-label">Selecciona una fecha:</label>
+                    <input type="date" id="date-picker" class="form-control" min="" />
+                </div>
+
+                <h3>Selecciona un rango de horas:</h3>
+                <div id="time-slots" class="d-flex flex-wrap"></div>
+
+                <div id="summary" class="summary">
+                    <h5>Resumen de Disponibilidad</h5>
+                    <p id="selected-date">Fecha: -</p>
+                    <p id="selected-hours">Hora de Inicio: -</p>
+                    <p id="selected-end-hour">Hora Final: -</p>
+                </div>
+
+                <button id="save-button" class="btn btn-primary mt-3">Guardar Disponibilidad</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const timeSlotsContainer = document.getElementById('time-slots');
+        const datePicker = document.getElementById('date-picker');
+        const summaryDate = document.getElementById('selected-date');
+        const summaryStartHour = document.getElementById('selected-hours');
+        const summaryEndHour = document.getElementById('selected-end-hour');
+        const saveButton = document.getElementById('save-button');
+
+        // Usamos dos variables para las horas seleccionadas
+        let horaInicial = null;
+        let horaFinal = null;
+
+        // Establecer la fecha mínima en el date picker
+        const today = new Date();
+        const todayString = today.toISOString().split('T')[0];
+        datePicker.setAttribute('min', todayString);
+
+        function generateTimeSlots() {
+            timeSlotsContainer.innerHTML = ''; // Limpiar los slots existentes
+
+            for (let h = 8; h <= 17; h++) { // Horario de 8 a 17
+                const times = ["00", "30"];
+                times.forEach(min => {
+                    const timeSlot = document.createElement('div');
+                    timeSlot.classList.add('time-slot');
+                    timeSlot.textContent = `${h}:${min}`;
+
+                    timeSlot.onclick = () => {
+                        handleTimeSelection(`${h}:${min}`, timeSlot);
+                    };
+
+                    timeSlotsContainer.appendChild(timeSlot);
+                });
+            }
+        }
+
+        function timeToMinutes(timeKey) {
+            // Convierte la hora en formato "HH:mm" a minutos desde medianoche
+            const [hours, minutes] = timeKey.split(':').map(num => parseInt(num, 10));
+            return hours * 60 + minutes;
+        }
+
+        function handleTimeSelection(timeKey, timeSlot) {
+            const selectedMinutes = timeToMinutes(timeKey);
+            const inicialMinutes = horaInicial ? timeToMinutes(horaInicial) : null;
+            const finalMinutes = horaFinal ? timeToMinutes(horaFinal) : null;
+
+            // Si no hay hora inicial, seleccionamos la hora de inicio
+            if (!horaInicial) {
+                horaInicial = timeKey;
+                timeSlot.classList.add('active');
+            }
+            // Si ya hay una hora inicial y no hay hora final, asignamos la hora final
+            else if (horaInicial && !horaFinal) {
+                if (selectedMinutes > inicialMinutes) {
+                    horaFinal = timeKey;
+                    timeSlot.classList.add('active');
+                } else {
+                    // Si la hora seleccionada es menor que la hora inicial, intercambiamos las horas
+                    let horaTemp = horaInicial;
+                    horaInicial = timeKey;
+                    horaFinal = horaTemp;
+                    timeSlot.classList.add('active');
+                }
+            }
+            // Si ya hay una hora final, reiniciamos las selecciones
+            else {
+                resetSelection();
+                horaInicial = timeKey;
+                timeSlot.classList.add('active');
+            }
+
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const selectedDate = datePicker.value;
+            summaryDate.textContent = `Fecha: ${selectedDate}`;
+            summaryStartHour.textContent = `Hora de Inicio: ${horaInicial || '-'}`;
+            summaryEndHour.textContent = `Hora Final: ${horaFinal || '-'}`;
+        }
+
+        function resetSelection() {
+            horaInicial = null;
+            horaFinal = null;
+            const timeSlots = document.querySelectorAll('.time-slot');
+            timeSlots.forEach(slot => slot.classList.remove('active')); // Eliminar clase "active" de todos los slots
+        }
+
+        datePicker.onchange = () => {
+            generateTimeSlots(); // Generar slots para la nueva fecha
+            resetSelection(); // Reiniciar selección
+            updateSummary(); // Actualizar resumen
+        };
+
+
+        saveButton.onclick = () => {
+            const selectedDate = datePicker.value;
+
+            // Verificar que la fecha y el rango de horas estén seleccionados
+            if (!selectedDate) {
+                alert('Por favor, selecciona una fecha.');
+                return;
+            }
+            if (!horaInicial || !horaFinal) {
+                alert('Por favor, selecciona un rango de horas válido.');
+                return;
+            }
+
+            // Crear objeto con los datos seleccionados
+            const disponibilidadData = {
+                fecha: selectedDate,
+                horaInicial: horaInicial,
+                horaFinal: horaFinal
+            };
+
+            // Enviar datos al backend usando fetch
+            fetch("/api/v1/horario/guardar", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(disponibilidadData)
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();  // Esto ahora debería funcionar
+                    } else {
+                        throw new Error("Error al guardar la disponibilidad");
+                    }
+                })
+                .then(data => {
+                    console.log("Disponibilidad guardada:", data);
+                    window.location.href = "/medico/disponibilidad";
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("Hubo un error al guardar la disponibilidad");
+                });
+        };
+        // Inicializar
+        generateTimeSlots();
+        updateSummary(); // Actualizar resumen al cargar
+
+
+    </script>
+
+</body>
+
+</html>
